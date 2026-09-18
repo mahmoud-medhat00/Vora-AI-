@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Vora AI | Creative OS</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;500;700&family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <script type="importmap">
+{
+  "imports": {
+    "@google/genai": "https://aistudiocdn.com/@google/genai@^1.20.0",
+    "react/": "https://aistudiocdn.com/react@^19.1.1/",
+    "react": "https://aistudiocdn.com/react@^19.1.1",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.1.1/",
+    "react-dom": "https://aistudiocdn.com/react-dom@^19.2.0"
+  }
+}
+</script>
+    <style>
+      :root {
+        --color-accent: #8b5cf6;
+        --color-accent-rgb: 139, 92, 246;
+        --color-bg-base: #020617;
+        --color-text-base: #f8fafc;
+        --color-glass-bg: rgba(15, 23, 42, 0.6);
+        --color-glass-border: rgba(255, 255, 255, 0.08);
+      }
+
+      @keyframes orbit {
+        from { transform: rotate(0deg) translateX(100px) rotate(0deg); }
+        to { transform: rotate(360deg) translateX(100px) rotate(-360deg); }
+      }
+
+      @keyframes float {
+        0%, 100% { transform: translateY(0px) rotate(0deg); }
+        50% { transform: translateY(-20px) rotate(2deg); }
+      }
+
+      @keyframes scanline {
+        0% { transform: translateY(-100%); }
+        100% { transform: translateY(100%); }
+      }
+      
+      .mesh-bg {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: -2;
+        background-color: var(--color-bg-base);
+        overflow: hidden;
+      }
+
+      .scanline {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 4px;
+        background: linear-gradient(to bottom, transparent, rgba(var(--color-accent-rgb), 0.1), transparent);
+        z-index: 100;
+        pointer-events: none;
+        animation: scanline 8s linear infinite;
+      }
+
+      .mesh-blob {
+        position: absolute;
+        width: 600px;
+        height: 600px;
+        background: radial-gradient(circle, rgba(var(--color-accent-rgb), 0.15) 0%, transparent 70%);
+        filter: blur(100px);
+        border-radius: 50%;
+        animation: float 20s ease-in-out infinite;
+      }
+
+      .mesh-blob {
+        position: absolute;
+        width: 600px;
+        height: 600px;
+        background: radial-gradient(circle, rgba(var(--color-accent-rgb), 0.15) 0%, transparent 70%);
+        filter: blur(100px);
+        border-radius: 50%;
+        animation: float 20s ease-in-out infinite;
+      }
+
+      .mesh-blob-2 {
+        top: -10%;
+        right: -10%;
+        background: radial-gradient(circle, rgba(99, 102, 241, 0.1) 0%, transparent 70%);
+      }
+
+      .mesh-blob-3 {
+        bottom: -20%;
+        left: -10%;
+        background: radial-gradient(circle, rgba(168, 85, 247, 0.1) 0%, transparent 70%);
+      }
+      
+      .animate-float {
+        animation: float 8s ease-in-out infinite;
+      }
+      
+      body {
+        margin: 0;
+        padding: 0;
+        background-color: var(--color-bg-base);
+        color: var(--color-text-base);
+        font-family: 'Inter', sans-serif;
+        overflow-x: hidden;
+      }
+
+      .font-display {
+        font-family: 'Space Grotesk', sans-serif;
+      }
+
+      .glass-card {
+        background: var(--color-glass-bg);
+        backdrop-filter: blur(24px);
+        -webkit-backdrop-filter: blur(24px);
+        border: 1px solid var(--color-glass-border);
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+      
+      .glass-card:hover {
+        border-color: rgba(var(--color-accent-rgb), 0.3);
+        box-shadow: 0 0 40px rgba(var(--color-accent-rgb), 0.1);
+      }
+
+      .cursor-glow {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 600px;
+        height: 600px;
+        background: radial-gradient(circle, rgba(var(--color-accent-rgb), 0.12) 0%, transparent 70%);
+        border-radius: 50%;
+        pointer-events: none;
+        z-index: -1;
+        transform: translate(-50%, -50%);
+        mix-blend-mode: screen;
+      }
+
+      .suggestions-scrollbar::-webkit-scrollbar { display: none; }
+      .suggestions-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+    </style>
+    <script>
+      const setRealViewportHeight = () => {
+        const vh = window.innerHeight * 0.01;
+        document.documentElement.style.setProperty('--vh', `${vh}px`);
+      };
+      window.addEventListener('resize', setRealViewportHeight);
+      window.addEventListener('orientationchange', setRealViewportHeight);
+      setRealViewportHeight();
+
+      document.addEventListener('mousemove', (e) => {
+          const glow = document.querySelector('.cursor-glow');
+          if (glow) {
+              glow.style.left = e.clientX + 'px';
+              glow.style.top = e.clientY + 'px';
+          }
+      });
+    </script>
+  <link rel="stylesheet" href="/index.css">
+</head>
+  <body data-theme="dark">
+    <div class="mesh-bg">
+      <div class="mesh-blob mesh-blob-1"></div>
+      <div class="mesh-blob mesh-blob-2"></div>
+      <div class="mesh-blob mesh-blob-3"></div>
+    </div>
+    <div class="scanline"></div>
+    <div class="cursor-glow"></div>
+    <div id="root"></div>
+    <script type="module" src="/index.tsx"></script>
+  </body>
+</html>

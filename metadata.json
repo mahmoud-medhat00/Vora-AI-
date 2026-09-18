@@ -1,0 +1,8 @@
+{
+  "name": "Vora AI: Creative OS",
+  "description": "Hyper-modern AI creative ecosystem for media buyers and e-commerce growth.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
